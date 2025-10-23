@@ -1,22 +1,27 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 
 export default function Login() {
-    const { login } = useContext(AuthContext);
+    const { login, token } = useContext(AuthContext);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
+    // If already logged in, go home
+    useEffect(() => {
+        if (token) navigate("/");
+    }, [token, navigate]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
         try {
             const res = await api.post("/auth/login", { email, password });
-            console.log("JWT Token:", res.data.access_token);
-            login(res.data.access_token, res.data.user);
-            navigate("/dashboard"); // 👈 redirect after success
+            await login(res.data.access_token);
+            navigate("/");
         } catch (err) {
             setError("Invalid credentials");
         }
