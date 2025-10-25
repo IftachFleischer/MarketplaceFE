@@ -1,0 +1,230 @@
+/* ============ THEME ============ */
+:root {
+    /* your brand reds (kept for accents) */
+    --color-dark: #1a0000;
+    --color-mid: #740000;
+    --color-accent: #b90000;
+
+    /* dark UI neutrals */
+    --bg: #000;
+    /* page background */
+    --panel: #0f0f0f;
+    /* cards/panels */
+    --panel-2: #111;
+    /* nav active / subtle fills */
+    --border: #222;
+    /* lines/borders */
+    --text: #eaeaea;
+    /* primary text */
+    --muted: #c8c8c8;
+    /* secondary text */
+    --muted-2: #9a9a9a;
+    /* tertiary */
+}
+
+/* ============ GLOBAL ============ */
+html,
+body,
+#root {
+    height: 100%;
+}
+
+html,
+body {
+    overflow-x: hidden;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+    margin: 0;
+}
+
+/* Fluid container used across pages */
+.container {
+    max-width: clamp(320px, 92vw, 1200px);
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.container--narrow {
+    max-width: 980px;
+}
+
+/* ============ NAVBAR ============ */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: #000;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+}
+
+.navbar-inner {
+    max-width: 1200px;
+    /* works whether or not you also wrap with .container */
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.brand {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+}
+
+.nav-links a {
+    color: #d6d6d6;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 10px;
+    transition: color .2s ease, background .2s ease;
+}
+
+.nav-links a:hover {
+    color: #fff;
+}
+
+.nav-links a.active {
+    background: var(--panel-2);
+    color: #fff;
+}
+
+.badge {
+    background: var(--color-accent);
+    color: #fff;
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 11px;
+    line-height: 18px;
+    height: 18px;
+    margin-left: 6px;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-chip {
+    color: var(--muted);
+    font-size: .92rem;
+    white-space: nowrap;
+}
+
+/* ============ LINKS ============ */
+a {
+    color: #d6d6d6;
+}
+
+a:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* ============ BUTTONS ============ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, border-color .2s ease, filter .2s ease;
+}
+
+/* light-on-dark button used for Login/Sign up */
+.btn-light {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #2a2a2a;
+}
+
+.btn-light:hover {
+    background: #2a2a2a;
+}
+
+/* outline/ghost button (used elsewhere in app) */
+.btn-ghost {
+    background: transparent;
+    color: #eaeaea;
+    border-color: #353535;
+}
+
+.btn-ghost:hover {
+    background: #121212;
+}
+
+/* primary (brand red) if you use it */
+.btn-primary {
+    background: var(--color-mid);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: var(--color-accent);
+}
+
+/* destructive / sign out */
+.btn-danger {
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: var(--color-mid);
+}
+
+/* ============ CARDS / PANELS ============ */
+.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+    overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+}
+
+/* ============ UTILITIES ============ */
+.muted {
+    color: var(--muted);
+}
+
+.muted-2 {
+    color: var(--muted-2);
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+    .nav-links {
+        gap: 12px;
+        overflow-x: auto;
+    }
+
+    .user-chip {
+        display: none;
+    }
+}

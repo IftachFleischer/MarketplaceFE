@@ -94,10 +94,9 @@ export default function Conversation() {
 
     return (
         <div
+            className="container"
             style={{
-                maxWidth: 720,
-                margin: "20px auto",
-                padding: "0 12px",
+                padding: "20px 12px",
                 display: "flex",
                 flexDirection: "column",
                 height: "calc(100vh - 80px)",

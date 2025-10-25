@@ -81,7 +81,7 @@ export default function MessagesInbox() {
     if (loading) return <p style={{ textAlign: "center", marginTop: 40 }}>Loading…</p>;
 
     return (
-        <div style={{ maxWidth: 760, margin: "40px auto", padding: "0 12px" }}>
+        <div className="container" style={{ padding: "40px 20px" }}>
             <h2>Inbox</h2>
 
             {/* Search */}

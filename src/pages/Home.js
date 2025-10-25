@@ -67,7 +67,7 @@ export default function Home() {
     };
 
     return (
-        <div style={{ padding: 20 }}>
+        <div className="container" style={{ padding: 20 }}>
             <h2>Products</h2>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
                 {visibleProducts.length === 0 ? (
