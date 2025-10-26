@@ -1,28 +1,27 @@
-/* ============ THEME ============ */
+/* ===============================
+   THEME TOKENS
+   =============================== */
 :root {
-    /* your brand reds (kept for accents) */
-    --color-dark: #1a0000;
-    --color-mid: #740000;
-    --color-accent: #b90000;
+    --bg: #f7f7f8;
 
-    /* dark UI neutrals */
-    --bg: #000;
-    /* page background */
-    --panel: #0f0f0f;
-    /* cards/panels */
-    --panel-2: #111;
-    /* nav active / subtle fills */
-    --border: #222;
-    /* lines/borders */
-    --text: #eaeaea;
-    /* primary text */
-    --muted: #c8c8c8;
-    /* secondary text */
-    --muted-2: #9a9a9a;
-    /* tertiary */
+    --panel: #ffffff;
+    --panel-muted: #f1f5f9;
+    --border: #e5e7eb;
+
+    --text: #0f172a;
+    --text-muted: #64748b;
+
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-soft: #eff6ff;
+
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
 }
 
-/* ============ GLOBAL ============ */
+/* ===============================
+   GLOBAL / LAYOUT
+   =============================== */
 html,
 body,
 #root {
@@ -35,13 +34,13 @@ body {
 }
 
 body {
+    margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: "Inter", "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
-    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
-/* Fluid container used across pages */
+/* Container helpers */
 .container {
     max-width: clamp(320px, 92vw, 1200px);
     margin: 0 auto;
@@ -52,25 +51,33 @@ body {
     max-width: 980px;
 }
 
-/* ============ NAVBAR ============ */
+/* ===============================
+   NAVBAR (solid dark)
+   =============================== */
 .navbar {
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: 100;
     background: #000;
-    border-bottom: 1px solid var(--border);
-    width: 100%;
+    /* dark header */
+    color: #fff;
+    border-bottom: 1px solid #222;
 }
 
 .navbar-inner {
     max-width: 1200px;
-    /* works whether or not you also wrap with .container */
     margin: 0 auto;
-    padding: 12px 20px;
+    padding: 10px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .brand {
@@ -80,65 +87,66 @@ body {
     text-decoration: none;
 }
 
+.navbar-logo {
+    height: 36px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.navbar-logo:hover {
+    opacity: .85;
+    transition: opacity .2s ease;
+}
+
 .nav-links {
     display: flex;
     align-items: center;
     gap: 18px;
-    min-width: 0;
 }
 
 .nav-links a {
-    color: #d6d6d6;
+    color: #fff;
     text-decoration: none;
     font-weight: 500;
     padding: 6px 10px;
     border-radius: 10px;
-    transition: color .2s ease, background .2s ease;
+    transition: .2s ease;
 }
 
-.nav-links a:hover {
-    color: #fff;
-}
-
+.nav-links a:hover,
 .nav-links a.active {
-    background: var(--panel-2);
+    background: #111;
     color: #fff;
 }
 
-.badge {
-    background: var(--color-accent);
-    color: #fff;
-    border-radius: 10px;
-    padding: 0 6px;
-    font-size: 11px;
-    line-height: 18px;
-    height: 18px;
-    margin-left: 6px;
-}
-
-.nav-actions {
+.nav-actions,
+.nav-right {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .user-chip {
-    color: var(--muted);
+    color: #e5e7eb;
     font-size: .92rem;
     white-space: nowrap;
 }
 
-/* ============ LINKS ============ */
-a {
-    color: #d6d6d6;
+@media (max-width:640px) {
+    .nav-links {
+        gap: 12px;
+        overflow-x: auto;
+    }
+
+    .user-chip {
+        display: none;
+    }
 }
 
-a:hover {
-    color: #ffffff;
-    text-decoration: none;
-}
-
-/* ============ BUTTONS ============ */
+/* ===============================
+   BUTTONS (unified blue)
+   =============================== */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -148,83 +156,410 @@ a:hover {
     border: 1px solid transparent;
     font-weight: 500;
     cursor: pointer;
-    transition: background .2s ease, color .2s ease, border-color .2s ease, filter .2s ease;
+    transition: .2s ease;
 }
 
-/* light-on-dark button used for Login/Sign up */
-.btn-light {
-    background: #1a1a1a;
-    color: #fff;
-    border-color: #2a2a2a;
-}
-
-.btn-light:hover {
-    background: #2a2a2a;
-}
-
-/* outline/ghost button (used elsewhere in app) */
+/* All primary actions are blue */
+.btn-primary,
 .btn-ghost {
-    background: transparent;
-    color: #eaeaea;
-    border-color: #353535;
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
 }
 
+.btn-primary:hover,
 .btn-ghost:hover {
-    background: #121212;
-}
-
-/* primary (brand red) if you use it */
-.btn-primary {
-    background: var(--color-mid);
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
     color: #fff;
 }
 
-.btn-primary:hover {
-    background: var(--color-accent);
-}
-
-/* destructive / sign out */
+/* Destructive */
 .btn-danger {
-    background: var(--color-accent);
+    background: var(--danger);
     color: #fff;
 }
 
 .btn-danger:hover {
-    background: var(--color-mid);
+    background: var(--danger-hover);
 }
 
-/* ============ CARDS / PANELS ============ */
+/* ===============================
+   GENERIC CARDS / PANELS
+   =============================== */
 .card {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 14px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
-    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
     transition: transform .15s ease, box-shadow .15s ease;
 }
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
 }
 
-/* ============ UTILITIES ============ */
+/* Utilities */
 .muted {
-    color: var(--muted);
+    color: var(--text-muted);
 }
 
-.muted-2 {
-    color: var(--muted-2);
+/* ===============================
+   PRODUCT GRID & CARDS
+   =============================== */
+.p-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
 }
 
-/* Responsive tweaks */
-@media (max-width: 640px) {
-    .nav-links {
-        gap: 12px;
-        overflow-x: auto;
+/* Card is a vertical flex column so the footer can stick to the bottom */
+.p-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+}
+
+.p-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
+    border-color: #dde2ea;
+}
+
+/* Top media block (square) */
+.p-card__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #f3f4f6;
+}
+
+.p-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* SOLD badge */
+.p-badge {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+    backdrop-filter: blur(4px);
+    background: #111;
+    color: #fff;
+}
+
+/* Body content (column). Footer pushes to bottom with margin-top:auto */
+.p-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    min-height: 120px;
+    /* gives space for title & chips */
+}
+
+.p-card__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.p-title {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: 600;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.p-price {
+    white-space: nowrap;
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* Chips — reserve height even if empty to keep rows even */
+.p-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    min-height: 28px;
+}
+
+.p-chip {
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--text);
+}
+
+.p-chip--muted {
+    background: #f8fafc;
+    color: #475569;
+}
+
+/* Footer (CTA) — **always visible** and fixed at card bottom */
+.p-card__footer {
+    margin-top: auto;
+    /* key line: pushes to bottom */
+    display: block;
+}
+
+.p-card__cta {
+    width: 100%;
+}
+
+/* full-width button */
+
+/* Home header */
+.home-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 0 14px;
+}
+
+.home-head h2 {
+    margin: 0;
+}
+
+/* ===============================
+   AUTH SCREENS (login/signup)
+   =============================== */
+.auth-shell {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    background: var(--bg);
+    box-sizing: border-box;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+    border-radius: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .12);
+}
+
+.auth-card * {
+    box-sizing: border-box;
+}
+
+.auth-head h2 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    line-height: 1.25;
+}
+
+.auth-head p {
+    margin: 0 0 12px;
+}
+
+.auth-banner {
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+}
+
+.auth-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.auth-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+}
+
+.auth-input:focus {
+    border-color: #cbd5e1;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+
+.auth-input-wrap {
+    position: relative;
+}
+
+.auth-eye {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.auth-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+}
+
+@media (max-height:600px) {
+    .auth-shell {
+        align-items: flex-start;
+        padding-top: 60px;
+    }
+}
+
+.auth-foot {
+    margin-top: 12px;
+    text-align: center;
+}
+
+/* ===== Product Details layout (refined) ===== */
+.pd-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Left column — card with centered square stage */
+.pd-media {
+    padding: 16px;
+}
+
+/* constrain the stage so it doesn't feel gigantic on wide monitors */
+.pd-media__main {
+    width: 100%;
+    max-width: 720px;
+    /* <- cap the size */
+    margin: 0 auto;
+    /* <- center inside the card */
+    aspect-ratio: 1 / 1;
+    background: #f3f4f6;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.pd-media__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* keep quality, no crop */
+    object-position: center;
+    /* center the product */
+    display: block;
+}
+
+/* thumbs strip */
+.pd-thumbs {
+    margin: 12px auto 0;
+    max-width: 720px;
+    /* align with main stage width */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 8px;
+}
+
+.pd-thumb {
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    height: 72px;
+    overflow: hidden;
+}
+
+.pd-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.pd-thumb.is-active {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+/* Right column — details card */
+.pd-side {
+    padding: 16px;
+}
+
+/* make the details panel stick on large screens */
+@media (min-width: 981px) {
+    .pd-side {
+        position: sticky;
+        top: 92px;
+        /* sit below the navbar */
+        align-self: start;
+    }
+}
+
+/* stack cleanly on small screens */
+@media (max-width: 980px) {
+    .pd-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
 
-    .user-chip {
-        display: none;
+    .pd-thumbs {
+        max-width: none;
     }
 }

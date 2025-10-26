@@ -1,9 +1,9 @@
-import { useEffect, useState, useContext, useMemo } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 
-/* helpers */
+/** ——— helpers ——— */
 const normalizeId = (val) => {
     if (!val) return null;
     if (typeof val === "string") return val;
@@ -26,200 +26,112 @@ const getSellerId = (p) => {
 export default function ProductDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
+    const { user, token } = useContext(AuthContext);
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [idx, setIdx] = useState(0);
+    const [active, setActive] = useState(0);
+
+    const myId = useMemo(
+        () => normalizeId(user?.id) || normalizeId(user?._id),
+        [user]
+    );
 
     useEffect(() => {
-        const fetchProduct = async () => {
+        let mounted = true;
+        (async () => {
             try {
                 const res = await api.get(`/products/${id}`);
+                if (!mounted) return;
                 setProduct(res.data);
-            } catch (err) {
-                console.error("Failed to load product:", err);
+                setActive(0);
+            } catch (e) {
+                console.error("Failed to load product:", e);
             } finally {
-                setLoading(false);
+                if (mounted) setLoading(false);
             }
+        })();
+        return () => {
+            mounted = false;
         };
-        fetchProduct();
     }, [id]);
 
-    const images = useMemo(
-        () => (Array.isArray(product?.images) ? product.images.filter(Boolean) : []),
-        [product]
-    );
-    const hasMultiple = images.length > 1;
+    if (loading) return <div className="container" style={{ padding: 24 }}>Loading…</div>;
+    if (!product) return <div className="container" style={{ padding: 24 }}>Product not found.</div>;
 
-    const sellerId = useMemo(() => (product ? getSellerId(product) : null), [product]);
-    const myId = normalizeId(user?.id) || normalizeId(user?._id);
-    const isMyProduct = sellerId && myId && sellerId === myId;
+    const images = product.images && product.images.length ? product.images.slice(0, 5) : [];
+    const sellerId = getSellerId(product);
+    const isMine = sellerId && myId && sellerId === myId;
 
-    const handleMessageSeller = () => {
-        if (!sellerId) return;
-        navigate(`/messages/${sellerId}?product=${id}`);
+    const handleMessage = () => {
+        const pid = normalizeId(product.id || product._id);
+        if (!token) {
+            navigate("/login", {
+                state: { fromMessageAttempt: true, productId: pid },
+            });
+            return;
+        }
+        if (sellerId && myId !== sellerId) {
+            navigate(`/messages/${sellerId}?product=${pid}`);
+        }
     };
 
-    const next = () => setIdx((i) => (i + 1) % images.length);
-    const prev = () => setIdx((i) => (i - 1 + images.length) % images.length);
-
-    useEffect(() => {
-        if (idx > images.length - 1) setIdx(0);
-    }, [images.length, idx]);
-
-    if (loading) return <p style={{ textAlign: "center" }}>Loading...</p>;
-    if (!product) return <p style={{ textAlign: "center" }}>Product not found.</p>;
-
     return (
-        <div className="container" style={{ padding: 20 }}>
-            {/* Two columns on wide screens, stack on small */}
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "minmax(280px, 560px) 1fr",
-                    gap: 24,
-                    alignItems: "start",
-                }}
-            >
-                {/* LEFT: media (bounded + centered) */}
-                <div style={{ width: "100%", maxWidth: 560 }}>
-                    <div
-                        style={{
-                            position: "relative",
-                            width: "100%",
-                            maxHeight: "70vh",
-                            minHeight: 360,
-                            borderRadius: 14,
-                            overflow: "hidden",
-                            border: "1px solid #e6e6e6",
-                            background: "#f7f7f7",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
+        <div className="container" style={{ padding: "16px 0 32px" }}>
+            <div className="pd-grid">
+                {/* Left: media */}
+                <div className="pd-media card">
+                    <div className="pd-media__main">
                         <img
-                            src={images[idx] || "https://via.placeholder.com/800"}
+                            src={images[active] || "https://via.placeholder.com/900"}
                             alt={product.product_name}
-                            style={{
-                                maxWidth: "100%",
-                                maxHeight: "100%",
-                                objectFit: "contain",    // no stretch, no crop
-                                display: "block",
-                                margin: "0 auto",
-                                imageRendering: "auto",
-                            }}
+                            className="pd-media__img"
+                            onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/900")}
                         />
-
-                        {hasMultiple && (
-                            <>
-                                <button onClick={prev} style={navArrowStyle("left")} aria-label="Previous image">‹</button>
-                                <button onClick={next} style={navArrowStyle("right")} aria-label="Next image">›</button>
-                            </>
-                        )}
-
-                        <span
-                            style={{
-                                position: "absolute",
-                                bottom: 10,
-                                left: 10,
-                                background: "rgba(0,0,0,0.6)",
-                                color: "#fff",
-                                fontSize: 12,
-                                padding: "3px 8px",
-                                borderRadius: 999,
-                            }}
-                        >
-                            {images.length} {images.length === 1 ? "image" : "images"}
-                        </span>
                     </div>
 
-                    {/* Thumbnails only if multiple */}
-                    {hasMultiple && (
-                        <div
-                            style={{
-                                display: "flex",
-                                gap: 10,
-                                marginTop: 10,
-                                overflowX: "auto",
-                                paddingBottom: 4,
-                            }}
-                        >
-                            {images.map((url, i) => {
-                                const active = i === idx;
-                                return (
-                                    <button
-                                        key={`${url}-${i}`}
-                                        onClick={() => setIdx(i)}
-                                        title={`Image ${i + 1}`}
-                                        style={{
-                                            width: 84,
-                                            height: 84,
-                                            flex: "0 0 auto",
-                                            borderRadius: 10,
-                                            overflow: "hidden",
-                                            border: active ? "2px solid #111" : "1px solid #e6e6e6",
-                                            padding: 0,
-                                            background: "#fff",
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        <img
-                                            src={url}
-                                            alt={`thumb-${i}`}
-                                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                                        />
-                                    </button>
-                                );
-                            })}
+                    {images.length > 1 && (
+                        <div className="pd-thumbs">
+                            {images.map((src, i) => (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    className={`pd-thumb ${i === active ? "is-active" : ""}`}
+                                    onClick={() => setActive(i)}
+                                    aria-label={`Show image ${i + 1}`}
+                                >
+                                    <img src={src} alt={`thumb ${i + 1}`} />
+                                </button>
+                            ))}
                         </div>
                     )}
                 </div>
 
-                {/* RIGHT: details */}
-                <div style={{ paddingTop: 4 }}>
-                    <h2 style={{ margin: "0 0 8px" }}>{product.product_name}</h2>
-                    <div style={{ fontSize: 24, fontWeight: 600, marginBottom: 10 }}>${product.price_usd}</div>
-                    <p style={{ marginTop: 0, opacity: 0.9 }}>{product.product_description}</p>
+                {/* Right: details */}
+                <aside className="pd-side card">
+                    <h2 style={{ margin: "0 0 6px" }}>{product.product_name}</h2>
+                    <div style={{ fontWeight: 800, marginBottom: 10 }}>${product.price_usd}</div>
 
-                    <div
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                            gap: 8,
-                            marginTop: 10,
-                            marginBottom: 16,
-                        }}
-                    >
-                        <div><b>Brand:</b> {product.brand || "-"}</div>
-                        <div><b>Category:</b> {product.category || "-"}</div>
+                    {product.product_description && (
+                        <p className="muted" style={{ marginTop: 0 }}>{product.product_description}</p>
+                    )}
+
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0 14px" }}>
+                        {product.brand && <span className="p-chip">{product.brand}</span>}
+                        {product.category && <span className="p-chip p-chip--muted">{product.category}</span>}
                     </div>
 
-                    {!isMyProduct && (
-                        <button className="btn btn-ghost" onClick={handleMessageSeller} style={{ borderColor: "#ddd" }}>
+                    {!isMine ? (
+                        <button className="btn btn-primary" style={{ width: "100%" }} onClick={handleMessage}>
                             Message Seller
                         </button>
+                    ) : (
+                        <button className="btn btn-ghost" style={{ width: "100%" }} disabled>
+                            This is your listing
+                        </button>
                     )}
-                </div>
+                </aside>
             </div>
         </div>
     );
-}
-
-function navArrowStyle(side) {
-    return {
-        position: "absolute",
-        top: "50%",
-        transform: "translateY(-50%)",
-        [side]: 10,
-        width: 36,
-        height: 36,
-        borderRadius: 999,
-        border: "1px solid rgba(0,0,0,0.25)",
-        background: "rgba(255,255,255,0.92)",
-        cursor: "pointer",
-        fontSize: 22,
-        lineHeight: "34px",
-    };
 }

@@ -1,19 +1,11 @@
-import { useState, useContext, useEffect } from "react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 
 export default function Register() {
-    const { token } = useContext(AuthContext);
     const [form, setForm] = useState({ email: "", password: "", first_name: "", last_name: "" });
-    const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
-
-    // If already logged in, go home
-    useEffect(() => {
-        if (token) navigate("/");
-    }, [token, navigate]);
 
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -22,25 +14,77 @@ export default function Register() {
         setError("");
         try {
             await api.post("/auth/register", form);
-            setSuccess(true);
-            setTimeout(() => navigate("/login"), 800);
-        } catch (e) {
-            setError("Registration failed");
+            navigate("/login", { state: { registered: true } });
+        } catch (err) {
+            const msg = err?.response?.data?.detail || "Registration failed";
+            setError(msg);
         }
     };
 
     return (
-        <div style={{ maxWidth: 400, margin: "auto", marginTop: 50 }}>
-            <h2>Register</h2>
-            {success && <p>Registered! Redirecting to login…</p>}
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <input name="first_name" placeholder="First name" onChange={handleChange} /><br />
-                <input name="last_name" placeholder="Last name" onChange={handleChange} /><br />
-                <input name="email" placeholder="Email" onChange={handleChange} /><br />
-                <input name="password" type="password" placeholder="Password" onChange={handleChange} /><br />
-                <button type="submit">Register</button>
-            </form>
+        <div className="auth-shell">
+            <div className="auth-card card">
+                <div className="auth-head">
+                    <h2>Sign up</h2>
+                    <p className="muted">Create an account to start selling or buying</p>
+                </div>
+
+                {error && <div className="auth-error">{error}</div>}
+
+                <form onSubmit={handleSubmit} className="auth-form">
+                    <div className="auth-grid">
+                        <div>
+                            <label className="auth-label">First name</label>
+                            <input
+                                name="first_name"
+                                className="auth-input"
+                                placeholder="Taylor"
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="auth-label">Last name</label>
+                            <input
+                                name="last_name"
+                                className="auth-input"
+                                placeholder="Doe"
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <label className="auth-label" style={{ marginTop: 10 }}>Email</label>
+                    <input
+                        name="email"
+                        className="auth-input"
+                        placeholder="name@example.com"
+                        onChange={handleChange}
+                        type="email"
+                        required
+                    />
+
+                    <label className="auth-label" style={{ marginTop: 10 }}>Password</label>
+                    <input
+                        name="password"
+                        className="auth-input"
+                        placeholder="At least 6 characters"
+                        onChange={handleChange}
+                        type="password"
+                        required
+                    />
+
+                    <button type="submit" className="btn btn-primary" style={{ width: "100%", marginTop: 14 }}>
+                        Sign up
+                    </button>
+                </form>
+
+                <div className="auth-foot">
+                    <span className="muted">Already have an account?</span>{" "}
+                    <Link to="/login">Sign in</Link>
+                </div>
+            </div>
         </div>
     );
 }
