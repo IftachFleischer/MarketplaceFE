@@ -1202,3 +1202,68 @@ body {
     padding: 0 20px;
     box-sizing: border-box;
 }
+
+/* Chat bubbles */
+.bubble-row {
+    display: flex;
+    margin: 6px 0;
+}
+
+.bubble-row.is-me {
+    justify-content: flex-end;
+}
+
+.bubble-row.is-them {
+    justify-content: flex-start;
+}
+
+.bubble {
+    max-width: min(75%, 520px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 8px 12px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.bubble--me {
+    background: #dcf8c6;
+    /* WhatsApp-like green */
+    border-color: #bde8a9;
+}
+
+.bubble--them {
+    background: #fff;
+    /* light gray already in theme */
+    border-color: var(--border);
+}
+
+.bubble__text {
+    white-space: pre-wrap;
+}
+
+.bubble__meta {
+    margin-top: 4px;
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* tiny unread dot in navbar */
+.nav-badge-dot {
+    position: relative;
+}
+
+.nav-badge-dot::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    right: -6px;
+    width: 8px;
+    height: 8px;
+    background: var(--danger);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #000;
+    /* outline against dark navbar */
+}
