@@ -2,7 +2,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import logo from "../assets/logo_gradient.png"; // <-- adjust path if needed
+import logo from "../assets/logo_black.png"; // <-- adjust path if needed
 
 export default function NavBar() {
     const { token, user, logout } = useContext(AuthContext);
@@ -25,11 +25,7 @@ export default function NavBar() {
                 {/* Left: brand/logo */}
                 <div className="nav-left">
                     <Link to="/" className="brand">
-                        <img
-                            src={logo}
-                            alt="Market"
-                            className="navbar-logo"
-                        />
+                        <img src="/logo_black.png" alt="Marketplace" className="navbar-logo" />
                     </Link>
                 </div>
 
