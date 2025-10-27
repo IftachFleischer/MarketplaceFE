@@ -731,3 +731,11 @@ body {
     height: var(--card-cta-h);
     line-height: calc(var(--card-cta-h) - 2px);
 }
+
+/* Disabled buttons */
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(0.2);
+}

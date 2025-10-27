@@ -106,6 +106,10 @@ export default function Home() {
                                             <button className="btn btn-ghost p-card__cta" disabled>
                                                 Your listing
                                             </button>
+                                        ) : p.is_sold ? (
+                                            <button className="btn btn-primary p-card__cta" disabled>
+                                                Sold
+                                            </button>
                                         ) : (
                                             <button
                                                 className="btn btn-primary p-card__cta"
