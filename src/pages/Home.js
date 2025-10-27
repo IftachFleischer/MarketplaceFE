@@ -26,6 +26,7 @@ const getSellerId = (p) => {
 
 export default function Home() {
     const [products, setProducts] = useState([]);
+    const [q, setQ] = useState(""); // ← search query
     const { user, token } = useContext(AuthContext);
     const myId = useMemo(
         () => normalizeId(user?.id) || normalizeId(user?._id),
@@ -49,32 +50,83 @@ export default function Home() {
         const sellerId = getSellerId(p);
         const pid = normalizeId(p.id || p._id);
 
-        // logged-out: send to Sign In and remember product
         if (!token) {
             navigate("/login", {
                 state: { fromMessageAttempt: true, productId: pid },
             });
             return;
         }
-        // logged-in & not my item -> open conversation (thread for this product)
         if (sellerId && myId !== sellerId) {
             navigate(`/messages/${sellerId}?product=${pid}`);
         }
     };
 
+    // Derived filtered list
+    const filtered = useMemo(() => {
+        const s = q.trim().toLowerCase();
+        if (!s) return products;
+        return products.filter((p) => {
+            const name = (p.product_name || "").toLowerCase();
+            const brand = (p.brand || "").toLowerCase();
+            const cat = (p.category || "").toLowerCase();
+            const desc = (p.product_description || "").toLowerCase();
+            return (
+                name.includes(s) ||
+                brand.includes(s) ||
+                cat.includes(s) ||
+                desc.includes(s)
+            );
+        });
+    }, [q, products]);
+
     return (
         <div className="container" style={{ padding: "16px 0 32px" }}>
             <div className="home-head">
                 <h2>Discover</h2>
+
+                {/* Search box */}
+                <div className="search">
+                    <input
+                        className="search-input"
+                        type="search"
+                        value={q}
+                        onChange={(e) => setQ(e.target.value)}
+                        placeholder="Search by name, brand, category…"
+                        aria-label="Search products"
+                    />
+                    {q && (
+                        <button
+                            className="search-clear"
+                            type="button"
+                            onClick={() => setQ("")}
+                            aria-label="Clear search"
+                            title="Clear"
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Optional result count */}
+            <div style={{ marginBottom: 10, color: "var(--text-muted)" }}>
+                {products.length === 0
+                    ? "Loading products…"
+                    : q
+                        ? `${filtered.length} result${filtered.length === 1 ? "" : "s"}`
+                        : `${products.length} item${products.length === 1 ? "" : "s"}`}
             </div>
 
             <div className="p-grid">
                 {products.length === 0 ? (
                     <p>No products found.</p>
+                ) : filtered.length === 0 ? (
+                    <p>No matches for “{q}”.</p>
                 ) : (
-                    products.map((p) => {
+                    filtered.map((p) => {
                         const id = normalizeId(p.id || p._id);
-                        const cover = p.images?.[0] || "https://via.placeholder.com/400";
+                        const cover =
+                            p.images?.[0] || "https://via.placeholder.com/400";
                         const sellerId = getSellerId(p);
                         const isMine = myId && sellerId && myId === sellerId;
 
@@ -96,18 +148,23 @@ export default function Home() {
                                     <div className="p-meta">
                                         {p.brand && <span className="p-chip">{p.brand}</span>}
                                         {p.category && (
-                                            <span className="p-chip p-chip--muted">{p.category}</span>
+                                            <span className="p-chip p-chip--muted">
+                                                {p.category}
+                                            </span>
                                         )}
                                     </div>
 
-                                    {/* Footer ALWAYS rendered; sticks to bottom */}
                                     <div className="p-card__footer">
                                         {isMine ? (
                                             <button className="btn btn-ghost p-card__cta" disabled>
                                                 Your listing
                                             </button>
                                         ) : p.is_sold ? (
-                                            <button className="btn btn-primary p-card__cta" disabled>
+                                            <button
+                                                className="btn btn-ghost p-card__cta"
+                                                disabled
+                                                title="This item has been sold"
+                                            >
                                                 Sold
                                             </button>
                                         ) : (

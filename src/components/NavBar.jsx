@@ -1,11 +1,10 @@
-// src/components/NavBar.jsx
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api/axios";
 
+// ---- helpers ----
 function idFromAnything(x) {
-    // handles: "abc", {_id}, {$oid}, {$id: {$oid}}, {id}, { $id: "..." }
     if (!x) return null;
     if (typeof x === "string") return x;
     if (x.$oid) return String(x.$oid);
@@ -32,14 +31,8 @@ export default function NavBar() {
 
         const fetchUnread = async () => {
             try {
-                // Hit whatever endpoint returns messages (sent + received)
-                // If you later add /messages/unread_count, switch to that.
                 const { data } = await api.get("/messages");
-
-                const myId =
-                    idFromAnything(user?.id) ||
-                    idFromAnything(user?._id);
-
+                const myId = idFromAnything(user?.id) || idFromAnything(user?._id);
                 const list = Array.isArray(data)
                     ? data
                     : Array.isArray(data.items)
@@ -48,23 +41,22 @@ export default function NavBar() {
 
                 let count = 0;
                 for (const msg of list) {
-                    const to =
+                    const receiverId =
                         idFromAnything(msg.receiver) ||
                         idFromAnything(msg?.receiver?.$id) ||
                         idFromAnything(msg?.receiver?.id);
-                    const isUnread =
+                    const unread =
                         msg.is_read === false ||
-                        msg.read === false ||
-                        msg.isRead === false;
-
-                    if (to && myId && to === myId && isUnread) count++;
+                        msg.isRead === false ||
+                        msg.read === false;
+                    if (receiverId && myId && receiverId === myId && unread) count++;
                 }
 
                 if (!stopped) setUnread(count);
-            } catch (_e) {
-                // console.debug("unread failed", _e);
+            } catch (err) {
+                console.error("Unread check failed:", err);
             } finally {
-                if (!stopped) timer = setTimeout(fetchUnread, 20000); // poll
+                if (!stopped) timer = setTimeout(fetchUnread, 20000);
             }
         };
 
@@ -86,12 +78,23 @@ export default function NavBar() {
     return (
         <header className="navbar">
             <div className="container navbar-inner">
+                {/* ---- Left section: Logo ---- */}
                 <div className="nav-left">
-                    <Link to="/" className="brand">Marketplace</Link>
+                    <Link to="/" className="brand" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <img
+                            src="/logo_black.png"
+                            alt="Marketplace Logo"
+                            className="navbar-logo"
+                            style={{ height: "48px", width: "auto" }}
+                        />
+                    </Link>
                 </div>
 
+                {/* ---- Center section: Nav Links ---- */}
                 <nav className="nav-links">
-                    <Link to="/" className={pathname === "/" ? "active" : ""}>Home</Link>
+                    <Link to="/" className={pathname === "/" ? "active" : ""}>
+                        Home
+                    </Link>
 
                     {token && (
                         <Link
@@ -114,6 +117,7 @@ export default function NavBar() {
                     )}
                 </nav>
 
+                {/* ---- Right section: Auth ---- */}
                 <div className="nav-right">
                     {!token ? (
                         <>
