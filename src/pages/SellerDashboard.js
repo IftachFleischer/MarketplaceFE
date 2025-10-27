@@ -27,7 +27,7 @@ const getProductId = (p) => normalizeId(p?.id) || normalizeId(p?._id) || null;
 const TrashIcon = ({ size = 18 }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 6h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="2" />
+        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0  1 2 2v2" stroke="currentColor" strokeWidth="2" />
         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke="currentColor" strokeWidth="2" fill="none" />
         <path d="M10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
@@ -45,6 +45,7 @@ const StarIcon = ({ filled, size = 18 }) => (
 
 export default function SellerDashboard() {
     const { token, user } = useContext(AuthContext);
+
     const [products, setProducts] = useState([]);
     const [form, setForm] = useState({
         product_name: "",
@@ -53,6 +54,7 @@ export default function SellerDashboard() {
         category: "",
         brand: "",
         images: [],
+        size: "",           // ← free text
     });
     const [editingId, setEditingId] = useState(null);
     const [uploading, setUploading] = useState(false);
@@ -79,13 +81,14 @@ export default function SellerDashboard() {
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const editablePayload = ({ product_name, product_description, price_usd, category, brand, images }) => ({
-        product_name,
-        product_description,
-        price_usd: Number(price_usd),
-        category,
-        brand,
-        images,
+    const editablePayload = (f) => ({
+        product_name: f.product_name,
+        product_description: f.product_description,
+        price_usd: Number(f.price_usd),
+        category: f.category,
+        brand: f.brand,
+        images: Array.isArray(f.images) ? f.images.slice(0, 5) : [],
+        size: f.size || "",     // ← keep sending the free-text size
     });
 
     const resetForm = () =>
@@ -96,6 +99,7 @@ export default function SellerDashboard() {
             category: "",
             brand: "",
             images: [],
+            size: "",
         });
 
     const handleSubmit = async (e) => {
@@ -126,6 +130,7 @@ export default function SellerDashboard() {
             category: product.category || "",
             brand: product.brand || "",
             images: Array.isArray(product.images) ? product.images : product.images ? [product.images] : [],
+            size: product.size || "",   // ← load existing free-text size
         });
         const pid = getProductId(product);
         setEditingId(pid);
@@ -249,7 +254,7 @@ export default function SellerDashboard() {
                 <label style={label({ mt: 10 })}>Description</label>
                 <textarea
                     name="product_description"
-                    placeholder="Condition, size, fit, fabric…"
+                    placeholder="Condition, fit, fabric…"
                     value={form.product_description}
                     onChange={handleChange}
                     style={{ ...input(), minHeight: 140, resize: "vertical" }}
@@ -267,7 +272,7 @@ export default function SellerDashboard() {
                 />
                 {uploading && <small style={{ opacity: 0.7, display: "block", marginTop: 6 }}>Uploading…</small>}
 
-                {/* Thumbnails grid */}
+                {/* Thumbnails */}
                 <div
                     style={{
                         marginTop: 12,
@@ -294,12 +299,7 @@ export default function SellerDashboard() {
                                     background: "#fafafa",
                                 }}
                             >
-                                <img
-                                    src={url}
-                                    alt={`img-${i}`}
-                                    style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }}
-                                />
-
+                                <img src={url} alt={`img-${i}`} style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} />
                                 <div
                                     style={{
                                         position: "absolute",
@@ -311,21 +311,10 @@ export default function SellerDashboard() {
                                         pointerEvents: "none",
                                     }}
                                 >
-                                    <button
-                                        type="button"
-                                        onClick={() => setAsCover(i)}
-                                        title={isCover ? "Cover image" : "Set as cover"}
-                                        style={iconBtn({ bg: "rgba(255,255,255,0.95)" })}
-                                    >
+                                    <button type="button" onClick={() => setAsCover(i)} title={isCover ? "Cover image" : "Set as cover"} style={iconBtn({ bg: "rgba(255,255,255,0.95)" })}>
                                         <StarIcon filled={isCover} />
                                     </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => removeImage(i)}
-                                        title="Remove image"
-                                        style={iconBtn({ bg: "rgba(255,255,255,0.95)" })}
-                                    >
+                                    <button type="button" onClick={() => removeImage(i)} title="Remove image" style={iconBtn({ bg: "rgba(255,255,255,0.95)" })}>
                                         <TrashIcon />
                                     </button>
                                 </div>
@@ -337,7 +326,7 @@ export default function SellerDashboard() {
                     Tip: drag thumbnails to reorder · click the star to set the cover (first image shown in cards).
                 </div>
 
-                {/* Price / Brand / Category — responsive grid; each cell contains its own field */}
+                {/* Grid: Price / Brand / Size (free text) / Category */}
                 <div
                     style={{
                         display: "grid",
@@ -348,34 +337,28 @@ export default function SellerDashboard() {
                 >
                     <div>
                         <label style={label()}>Price (USD)</label>
-                        <input
-                            name="price_usd"
-                            type="number"
-                            placeholder="20"
-                            value={form.price_usd}
-                            onChange={handleChange}
-                            style={input()}
-                        />
+                        <input name="price_usd" type="number" placeholder="20" value={form.price_usd} onChange={handleChange} style={input()} />
                     </div>
+
                     <div>
                         <label style={label()}>Brand</label>
+                        <input name="brand" placeholder="e.g. Uniqlo" value={form.brand} onChange={handleChange} style={input()} />
+                    </div>
+
+                    <div>
+                        <label style={label()}>Size</label>
                         <input
-                            name="brand"
-                            placeholder="e.g. Uniqlo"
-                            value={form.brand}
+                            name="size"
+                            placeholder="e.g. M, EU 42, 32x30"
+                            value={form.size}
                             onChange={handleChange}
                             style={input()}
                         />
                     </div>
+
                     <div>
                         <label style={label()}>Category</label>
-                        <input
-                            name="category"
-                            placeholder="e.g. Shirts"
-                            value={form.category}
-                            onChange={handleChange}
-                            style={input()}
-                        />
+                        <input name="category" placeholder="e.g. Shirts" value={form.category} onChange={handleChange} style={input()} />
                     </div>
                 </div>
 
@@ -481,6 +464,7 @@ function input() {
         borderRadius: 10,
         border: "1px solid #ccc",
         outline: "none",
+        background: "#fff",
     };
 }
 function fileInput() {

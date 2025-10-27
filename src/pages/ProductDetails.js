@@ -117,6 +117,7 @@ export default function ProductDetails() {
                     )}
 
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "10px 0 14px" }}>
+                        {product.size && <span className="p-chip">{product.size}</span>}
                         {product.brand && <span className="p-chip">{product.brand}</span>}
                         {product.category && <span className="p-chip p-chip--muted">{product.category}</span>}
                     </div>
